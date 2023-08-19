@@ -1,7 +1,7 @@
-'use client'
-import { DEFAULT_PROPS } from '../constants'
-import { EnvVariable, useLandEnvVars } from '../hooks/useEnvVariables'
-import { useSession } from 'next-auth/react'
+"use client";
+import { LandingCms } from "../components/landingPage";
+import { useLandEnvVars } from "../hooks/useEnvVariables";
+import { useSession } from "next-auth/react";
 import React, {
   Dispatch,
   ReactNode,
@@ -9,135 +9,179 @@ import React, {
   createContext,
   useMemo,
   useState,
-} from 'react'
-import type { SpenpoLandingCms, SpenpoLandingCmsGetSet } from 'spenpo-landing'
+} from "react";
 
 type CmsContextProps = {
-  setPassword: Dispatch<SetStateAction<string | undefined>>
-  hideAdmin: [boolean, Dispatch<SetStateAction<boolean>>]
-  landingCms: SpenpoLandingCms
-  environmentVariables: EnvVariable[]
-}
+  setPassword: Dispatch<SetStateAction<string | undefined>>;
+  landingCms: LandingCms;
+};
 
-export const CmsContext = createContext({} as CmsContextProps)
+export const CmsContext = createContext({} as CmsContextProps);
 
 export const CmsContextProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const session = useSession()
+  const session = useSession();
 
-  const clientName = useState<string | undefined>(
-    process.env.NEXT_PUBLIC_NAME || 'not found'
-  )
-  const title = useState<string | undefined>(
-    process.env.NEXT_PUBLIC_TITLE || 'not found'
-  )
-  const subtitle = useState<string | undefined>(
-    process.env.NEXT_PUBLIC_SUBTITLE || 'not found'
-  )
+  const [clientName, setClientName] = useState(
+    process.env.NEXT_PUBLIC_NAME || "not found"
+  );
+  const [title, setTitle] = useState(
+    process.env.NEXT_PUBLIC_TITLE || "not found"
+  );
+  const [subtitle, setSubtitle] = useState<string>(
+    process.env.NEXT_PUBLIC_SUBTITLE || "not found"
+  );
   const [socialUrls, setSocialUrls] = useState<string>(
-    process.env.NEXT_PUBLIC_SOCIALS || '[]'
-  )
-  const actionDestination = useState(process.env.NEXT_PUBLIC_ACTION)
-  const actionStatement = useState<string | undefined>(
-    process.env.NEXT_PUBLIC_ACTION_STATEMENT || 'not found'
-  )
-  const headshotSrc = useState<string | undefined>(
-    process.env.NEXT_PUBLIC_HEADSHOT || DEFAULT_PROPS.HEADSHOT
-  )
-  const backgroundColor = useState<string | undefined>(
-    process.env.NEXT_PUBLIC_BG_COLOR || DEFAULT_PROPS.BG_COLOR
-  )
-  const backgroundImage = useState<string | undefined>(
-    process.env.NEXT_PUBLIC_BG_IMAGE || DEFAULT_PROPS.BG_IMAGE
-  )
-  const accentColor = useState<string | undefined>(
-    process.env.NEXT_PUBLIC_ACCENT_COLOR || DEFAULT_PROPS.ACCENT_COLOR
-  )
-  const secondaryAccentColor = useState<string | undefined>(
-    process.env.NEXT_PUBLIC_SECONDARY_ACCENT_COLOR ||
-      DEFAULT_PROPS.SECONDARY_ACCENT_COLOR
-  )
-  const [password, setPassword] = useState<string>()
-  const [hideAdmin, setHideAdmin] = useState<boolean>(
-    process.env.NEXT_PUBLIC_HIDE_ADMIN === 'true'
-  )
+    process.env.NEXT_PUBLIC_SOCIALS || "[]"
+  );
+  const [actionDestination, setActionDestination] = useState(
+    process.env.NEXT_PUBLIC_ACTION
+  );
+  const [actionStatement, setActionStatement] = useState<string | undefined>(
+    process.env.NEXT_PUBLIC_ACTION_STATEMENT || "not found"
+  );
+  const [headshotContent, setHeadshotContent] = useState<string>();
+  const [headshotFileName, setHeadshotFileName] = useState(
+    process.env.NEXT_PUBLIC_HEADSHOT || ""
+  );
+  const [headshotSrc, setHeadshotSrc] = useState(
+    `/${process.env.NEXT_PUBLIC_HEADSHOT}`
+  );
+  const [backgroundColor, setBackgroundColor] = useState(
+    process.env.NEXT_PUBLIC_BG_COLOR
+  );
+  const [backgroundImage, setBackgroundImage] = useState(
+    process.env.NEXT_PUBLIC_BG_IMAGE
+  );
+  const [accentColor, setAccentColor] = useState(
+    process.env.NEXT_PUBLIC_ACCENT_COLOR
+  );
+  const [secondaryAccentColor, setSecondaryAccentColor] = useState(
+    process.env.NEXT_PUBLIC_SECONDARY_ACCENT_COLOR
+  );
+  const [linkNewTab, setLinkNewTab] = useState(
+    process.env.NEXT_PUBLIC_LINK_NEW_TAB || "false"
+  );
+  const [password, setPassword] = useState<string>();
 
-  const file = useState<File>()
+  const nameGetSet: LandingCms["name"] = {
+    getter: () => useMemo(() => clientName, [clientName]),
+    setter: (name: string) => {
+      setClientName(name);
+    },
+  };
 
-  const socialsGetSet: SpenpoLandingCms['socialUrls'] = useMemo(() => {
-    return {
-      getter: () => JSON.parse(socialUrls),
-      setter: (socials?: string[]) => {
-        setSocialUrls(JSON.stringify(socials))
-      },
-    }
-  }, [socialUrls])
+  const linkNewTabGetSet: LandingCms["linkNewTab"] = {
+    getter: () => useMemo(() => JSON.parse(linkNewTab), [linkNewTab]),
+    setter: (newTab: boolean) => {
+      setLinkNewTab(JSON.stringify(newTab));
+    },
+  };
 
-  function getSet<T>([state, setState]: [
-    T,
-    Dispatch<SetStateAction<T>>
-  ]): SpenpoLandingCmsGetSet<T> {
-    return {
-      getter: () => state,
-      setter: setState,
-    }
-  }
+  const socialsGetSet: LandingCms["socialUrls"] = {
+    getter: () => useMemo(() => JSON.parse(socialUrls), [socialUrls]),
+    setter: (socials?: string[]) => {
+      setSocialUrls(JSON.stringify(socials));
+    },
+  };
+
+  const titleGetSet: LandingCms["title"] = {
+    getter: () => useMemo(() => title, [title]),
+    setter: setTitle,
+  };
+
+  const subtitleGetSet: LandingCms["subtitle"] = {
+    getter: () => useMemo(() => subtitle, [subtitle]),
+    setter: setSubtitle,
+  };
+
+  const actionDestinationGetSet: LandingCms["actionDestination"] = {
+    getter: () => useMemo(() => actionDestination, [actionDestination]),
+    setter: setActionDestination,
+  };
+
+  const actionStatementGetSet: LandingCms["actionStatement"] = {
+    getter: () => useMemo(() => actionStatement, [actionStatement]),
+    setter: setActionStatement,
+  };
+
+  const headshotContentGetSet: LandingCms["headshotContent"] = {
+    getter: () => useMemo(() => headshotContent, [headshotContent]),
+    setter: setHeadshotContent,
+  };
+
+  const headshotFileNameGetSet: LandingCms["headshotFileName"] = {
+    getter: () => useMemo(() => headshotFileName, [headshotFileName]),
+    setter: setHeadshotFileName,
+  };
+
+  const headshotSrcGetSet: LandingCms["headshotSrc"] = {
+    getter: () => useMemo(() => headshotSrc, [headshotSrc]),
+    setter: setHeadshotSrc,
+  };
+
+  const backgroundColorGetSet: LandingCms["backgroundColor"] = {
+    getter: () => useMemo(() => backgroundColor, [backgroundColor]),
+    setter: setBackgroundColor,
+  };
+
+  const backgroundImageGetSet: LandingCms["backgroundImage"] = {
+    getter: () => useMemo(() => backgroundImage, [backgroundImage]),
+    setter: setBackgroundImage,
+  };
+
+  const accentColorGetSet: LandingCms["accentColor"] = {
+    getter: () => useMemo(() => accentColor, [accentColor]),
+    setter: setAccentColor,
+  };
+
+  const secondaryAccentColorGetSet: LandingCms["secondaryAccentColor"] = {
+    getter: () => useMemo(() => secondaryAccentColor, [secondaryAccentColor]),
+    setter: setSecondaryAccentColor,
+  };
 
   const environmentVariables = useLandEnvVars({
-    NEXT_PUBLIC_TITLE: title[0],
-    NEXT_PUBLIC_NAME: clientName[0],
-    NEXT_PUBLIC_SUBTITLE: subtitle[0],
+    NEXT_PUBLIC_TITLE: title,
+    NEXT_PUBLIC_NAME: clientName,
+    NEXT_PUBLIC_SUBTITLE: subtitle,
     NEXT_PUBLIC_SOCIALS: socialUrls,
-    NEXT_PUBLIC_ACTION_STATEMENT: actionStatement[0],
-    NEXT_PUBLIC_HEADSHOT: headshotSrc[0],
-    NEXT_PUBLIC_ACTION: actionDestination[0],
-    NEXT_PUBLIC_BG_COLOR: backgroundColor[0],
-    NEXT_PUBLIC_BG_IMAGE: backgroundImage[0],
-    NEXT_PUBLIC_ACCENT_COLOR: accentColor[0],
-    NEXT_PUBLIC_SECONDARY_ACCENT_COLOR: secondaryAccentColor[0],
-    NEXT_PUBLIC_HIDE_ADMIN: `${hideAdmin}`,
+    NEXT_PUBLIC_ACTION_STATEMENT: actionStatement,
+    NEXT_PUBLIC_HEADSHOT: headshotFileName,
+    NEXT_PUBLIC_ACTION: actionDestination,
+    NEXT_PUBLIC_BG_COLOR: backgroundColor,
+    NEXT_PUBLIC_BG_IMAGE: backgroundImage,
+    NEXT_PUBLIC_ACCENT_COLOR: accentColor,
+    NEXT_PUBLIC_SECONDARY_ACCENT_COLOR: secondaryAccentColor,
+    NEXT_PUBLIC_HIDE_ADMIN: "false",
+    NEXT_PUBLIC_LINK_NEW_TAB: linkNewTab,
     NEXT_AUTH_USERNAME: session.data?.user?.email,
     NEXT_AUTH_PASSWORD: password,
-  })
+  });
 
   const contextValue: CmsContextProps = useMemo(() => {
-    const landingCms: SpenpoLandingCms = {
-      name: getSet(clientName),
-      socialUrls: socialsGetSet,
-      title: getSet(title),
-      subtitle: getSet(subtitle),
-      actionDestination: getSet(actionDestination),
-      actionStatement: getSet(actionStatement),
-      headshotSrc: getSet(headshotSrc),
-      headshotFile: getSet(file),
-      backgroundColor: getSet(backgroundColor),
-      backgroundImage: getSet(backgroundImage),
-      accentColor: getSet(accentColor),
-      secondaryAccentColor: getSet(secondaryAccentColor),
-    }
     return {
       setPassword,
-      hideAdmin: [hideAdmin, setHideAdmin],
-      landingCms,
-      environmentVariables,
-    }
-  }, [
-    headshotSrc,
-    clientName,
-    title,
-    subtitle,
-    actionDestination,
-    actionStatement,
-    accentColor,
-    secondaryAccentColor,
-    backgroundColor,
-    backgroundImage,
-    socialsGetSet,
-    environmentVariables,
-    file,
-    hideAdmin,
-  ])
+      landingCms: {
+        name: nameGetSet,
+        socialUrls: socialsGetSet,
+        title: titleGetSet,
+        subtitle: subtitleGetSet,
+        actionDestination: actionDestinationGetSet,
+        actionStatement: actionStatementGetSet,
+        headshotContent: headshotContentGetSet,
+        headshotFileName: headshotFileNameGetSet,
+        headshotSrc: headshotSrcGetSet,
+        backgroundColor: backgroundColorGetSet,
+        backgroundImage: backgroundImageGetSet,
+        accentColor: accentColorGetSet,
+        secondaryAccentColor: secondaryAccentColorGetSet,
+        linkNewTab: linkNewTabGetSet,
+      },
+    };
+  }, [headshotContent, headshotFileName, environmentVariables]);
 
-  return <CmsContext.Provider value={contextValue}>{children}</CmsContext.Provider>
-}
+  return (
+    <CmsContext.Provider value={contextValue}>{children}</CmsContext.Provider>
+  );
+};
