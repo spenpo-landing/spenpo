@@ -1,13 +1,14 @@
-'use client'
 import { Stack, Button, Box } from '@mui/material'
 import { useRouter } from 'next/navigation'
-import React from 'react'
+import React, { useContext } from 'react'
 import ChevronRightIcon from '@mui/icons-material/ChevronRight'
+import { LandingPageContext } from '../context/landingPage'
 import { useSession } from 'next-auth/react'
 
-export const TopComponents: React.FC<{ editable: boolean }> = ({ editable }) => {
+export const TopComponents: React.FC = () => {
   const router = useRouter()
   const session = useSession()
+  const { editable } = useContext(LandingPageContext)
 
   return (
     session.status === 'authenticated' && (
@@ -21,7 +22,7 @@ export const TopComponents: React.FC<{ editable: boolean }> = ({ editable }) => 
           component="span"
           sx={{
             mr: { md: 5, sm: 5, xs: 'auto' },
-            mt: editable ? { md: 0, sm: 15 } : { md: 0, sm: 5 },
+            mt: editable?.[0] ? { md: 0, sm: 15 } : { md: 0, sm: 5 },
             ml: { xs: 'auto' },
           }}
         >
