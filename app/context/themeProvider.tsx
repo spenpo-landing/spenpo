@@ -1,6 +1,10 @@
 'use client'
 
-import { ThemeProvider as MuiThemeProvider, createTheme } from '@mui/material'
+import {
+  CssBaseline,
+  ThemeProvider as MuiThemeProvider,
+  createTheme,
+} from '@mui/material'
 import { useMemo } from 'react'
 
 type Props = {
@@ -8,22 +12,11 @@ type Props = {
 }
 
 export const ThemeProvider = ({ children }: Props) => {
-  const theme = useMemo(
-    () =>
-      createTheme({
-        components: {
-          MuiCircularProgress: {
-            styleOverrides: {
-              root: {
-                height: '24.5px !important',
-                width: '24.5px !important',
-                color: '#fff',
-              },
-            },
-          },
-        },
-      }),
-    []
+  const theme = useMemo(() => createTheme({}), [])
+  return (
+    <MuiThemeProvider theme={theme}>
+      <CssBaseline />
+      {children}
+    </MuiThemeProvider>
   )
-  return <MuiThemeProvider theme={theme}>{children}</MuiThemeProvider>
 }
