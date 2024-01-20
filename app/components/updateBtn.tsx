@@ -1,47 +1,18 @@
 'use client'
-import React, { useState } from 'react'
-import { Button, CircularProgress, Stack, Typography } from '@mui/material'
-import Link from 'next/link'
+import React from 'react'
+import { Button, Stack, Typography } from '@mui/material'
+import { runWorkflow } from '../services/github'
 
-export const UpdateBtn: React.FC<{ latestVersion: string }> = ({
-  latestVersion,
-}) => {
-  const [loading, setLoading] = useState(false)
-  const [failure, setFailure] = useState(false)
-  const [success, setSuccess] = useState(false)
-
+export const UpdateBtn: React.FC = () => {
   const update = async () => {
-    setLoading(true)
-    const run = await fetch('/api/runWorkflow', {
-      method: 'post',
-      body: JSON.stringify({
-        projectName: process.env.NEXT_PUBLIC_PROJECT_NAME || '',
-        workflow: 'update.yml',
-      }),
-    })
-    const res = await run.json()
-    if (res.status === 200) setSuccess(true)
-    if (res.status === 400) setFailure(true)
-    setLoading(false)
+    await runWorkflow(process.env.NEXT_PUBLIC_PROJECT_NAME || '', 'update.yml')
   }
 
-  if (failure) return <Typography>ERROR: Please try again</Typography>
-  if (success)
-    return (
-      <Typography>
-        Update initiated. Please allow a few minutes for the changes to take effect.
-        You can track the progress at{' '}
-        <Link href="https://www.spenpo.com/products/landing-page/my-sites">
-          spenpo.com/products/landing-page/my-sites
-        </Link>
-      </Typography>
-    )
-
   return (
-    <Stack direction={{ xs: 'column', md: 'row' }} gap={3} alignItems="center">
-      <Typography>Version {latestVersion} is now available:</Typography>
-      <Button onClick={update} variant="contained" sx={{ width: 250 }}>
-        {loading ? <CircularProgress /> : 'Click here to update'}
+    <Stack direction="row" gap={3} alignItems="baseline">
+      <Typography>New version available</Typography>
+      <Button onClick={update} variant="contained">
+        Click here to update
       </Button>
     </Stack>
   )
