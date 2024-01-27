@@ -1,10 +1,7 @@
 {
   "name": "landing-template",
-  "version": "2.2.7",
+  "version": "2.2.8",
   "private": true,
-  "engines": {
-    "node": "20.x"
-  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
